@@ -1,0 +1,29 @@
+[
+  {
+    "product_id": "p-1001",
+    "name": "Artisan Bread",
+    "category": "Bakery",
+    "price": 4.5,
+    "stock": 12,
+    "low_stock_threshold": 5,
+    "discontinued": false
+  },
+  {
+    "product_id": "p-1002",
+    "name": "Chocolate Muffin",
+    "category": "Bakery",
+    "price": 3.25,
+    "stock": 4,
+    "low_stock_threshold": 5,
+    "discontinued": false
+  },
+  {
+    "product_id": "p-1003",
+    "name": "Cold Brew Bottle",
+    "category": "Beverages",
+    "price": 5.75,
+    "stock": 8,
+    "low_stock_threshold": 5,
+    "discontinued": false
+  }
+]
