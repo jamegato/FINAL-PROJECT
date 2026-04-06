@@ -123,7 +123,10 @@ def render_section_title(title, subtitle=""):
 def render_table_group(title, rows, empty_message):
     st.markdown("<div class='table-group'>", unsafe_allow_html=True)
     st.subheader(title)
-    st.dataframe(rows, use_container_width=True) if rows else st.info(empty_message)
+    if rows:
+        st.dataframe(rows, use_container_width=True)
+    else:
+        st.info(empty_message)
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -402,7 +405,10 @@ def render_auth_screen():
             role = st.selectbox("Role", ROLE_OPTIONS, key="reg_role")
             if st.button("Create Account", key="register_btn", use_container_width=True):
                 ok, msg = register_user(username, password, role)
-                st.success(msg) if ok else st.error(msg)
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
     return logged_in
 
 
@@ -471,7 +477,10 @@ def render_owner_inventory_page():
             threshold = st.number_input("Low Stock Threshold", min_value=1, max_value=100000, step=1, value=5, key="owner_new_threshold")
             if st.form_submit_button("Add Product", use_container_width=True):
                 ok, msg = add_product(name, category, price, stock, threshold)
-                st.success(msg) if ok else st.error(msg)
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
 
     with update_col, st.container(border=True):
         st.subheader("Update / Discontinue")
@@ -493,11 +502,17 @@ def render_owner_inventory_page():
                 threshold = st.number_input("Update Threshold", min_value=1, max_value=100000, step=1, value=int(selected.get("low_stock_threshold", 5)), key="owner_upd_threshold")
                 if st.form_submit_button("Save Changes", use_container_width=True):
                     ok, msg = update_product(selected_id, price, stock, threshold)
-                    st.success(msg) if ok else st.error(msg)
+                    if ok:
+                        st.success(msg)
+                    else:
+                        st.error(msg)
 
             if st.button("Mark as Discontinued", key="owner_discontinue_btn", use_container_width=True):
                 ok, msg = discontinue_product(selected_id)
-                st.success(msg) if ok else st.error(msg)
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
 
     rows = [
         {
@@ -603,7 +618,10 @@ def render_employee_sales_page():
 
         if st.button("Record Sale", key="record_sale_btn", use_container_width=True, type="primary"):
             ok, msg = record_sale(selected_id, quantity, st.session_state["current_user"])
-            st.success(msg) if ok else st.error(msg)
+            if ok:
+                st.success(msg)
+            else:
+                st.error(msg)
 
 
 def render_employee_flags_page():
@@ -626,7 +644,10 @@ def render_employee_flags_page():
             note = st.text_area("Reason / note", key="employee_flags_note", max_chars=250)
             if st.button("Submit Flag", key="submit_flag_btn", use_container_width=True):
                 ok, msg = submit_low_stock_flag(product, note, st.session_state["current_user"])
-                st.success(msg) if ok else st.error(msg)
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
 
     my_rows = [
         {"Product": f.get("product_name", ""), "Note": f.get("note", ""), "Status": f.get("status", "open")}
