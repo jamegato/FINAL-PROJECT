@@ -383,7 +383,6 @@ def render_auth_screen():
         unsafe_allow_html=True,
     )
 
-    logged_in = False
     _, center, _ = st.columns([1, 1.6, 1])
     with center:
         login_tab, register_tab = st.tabs(["Login", "Register"])
@@ -394,7 +393,7 @@ def render_auth_screen():
             if st.button("Login", key="login_btn", use_container_width=True, type="primary"):
                 if login_user(username, password):
                     st.success("Login successful.")
-                    logged_in = True
+                    st.rerun()
                 else:
                     st.error("Invalid username or password. Please try again.")
 
@@ -409,7 +408,6 @@ def render_auth_screen():
                     st.success(msg)
                 else:
                     st.error(msg)
-    return logged_in
 
 
 def render_sidebar_navigation():
@@ -434,8 +432,7 @@ def render_sidebar_navigation():
         st.divider()
         if st.button("Logout", use_container_width=True, key="logout_btn"):
             logout_user()
-            return True
-    return False
+            st.rerun()
 
 
 def render_ai_assistant():
@@ -674,8 +671,7 @@ def render_main_app():
             unsafe_allow_html=True,
         )
 
-    if render_sidebar_navigation():
-        return
+    render_sidebar_navigation()
 
     route = {
         "assistant": render_ai_assistant,
@@ -692,8 +688,7 @@ def render_main_app():
 def main():
     init_session_state()
     if not st.session_state["authenticated"]:
-        if render_auth_screen():
-            render_main_app()
+        render_auth_screen()
     else:
         render_main_app()
 
