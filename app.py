@@ -174,11 +174,11 @@ def render_login_page():
                 <h4>Test Accounts</h4>
                 <div class='account-row'>
                     <strong>Owner Account:</strong><br/>
-                    Email: owner@test.com | Password: owner123
+                    Email: james@test.com | Password: james123
                 </div>
                 <div class='account-row'>
                     <strong>Employee Account:</strong><br/>
-                    Email: employee@test.com | Password: employee123
+                    Email: random@test.com | Password: random123
                 </div>
             </div>
             """,
