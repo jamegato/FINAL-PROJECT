@@ -1,14 +1,4 @@
-"""
-Small Business Inventory Manager - Phase 2 Final Project
-Multi-layered architecture with OOP design and OpenAI integration.
 
-Layers:
-- UI Layer: Streamlit interface (this file)
-- Data Layer: data_layer.py (JSON persistence)
-- Service Layer: service_layer.py (business logic & validation)
-- Models Layer: models.py (data classes and managers)
-- AI Layer: ai_assistant.py (OpenAI integration)
-"""
 
 import streamlit as st
 from typing import Optional
@@ -25,15 +15,12 @@ from service_layer import (
 from ai_assistant import AIAssistant
 
 
-# ==================== CONFIGURATION ====================
-
 st.set_page_config(
     page_title="Small Business Inventory Manager",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better design
 st.markdown(
     """
     <style>
@@ -69,12 +56,12 @@ st.markdown(
     
     .role-owner {
         background-color: #10b981;
-        color: white;
+        color: yellow;
     }
     
     .role-employee {
         background-color: #3b82f6;
-        color: white;
+        color: yellow;
     }
     
     .test-accounts {
@@ -85,6 +72,10 @@ st.markdown(
         margin: 1rem 0;
     }
     
+    .test-accounts {
+        color: #0c4a6e;
+    }
+
     .test-accounts h4 {
         margin-top: 0;
         color: #0c4a6e;
@@ -92,6 +83,7 @@ st.markdown(
     
     .account-row {
         background: white;
+        color: #0c4a6e;
         padding: 0.75rem;
         margin: 0.5rem 0;
         border-radius: 4px;
@@ -103,17 +95,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ==================== SESSION STATE INITIALIZATION ====================
 
 def initialize_session_state():
     """Initialize all session state variables."""
-    
-    # Authentication
     st.session_state.setdefault("authenticated", False)
     st.session_state.setdefault("current_user", None)
     st.session_state.setdefault("current_page", "dashboard")
-    
-    # Managers (loaded from data layer)
     if "data_layer" not in st.session_state:
         st.session_state["data_layer"] = DataLayer()
     
@@ -136,8 +123,6 @@ def initialize_session_state():
         data_layer = st.session_state["data_layer"]
         ok, flags, _ = data_layer.load_flags()
         st.session_state["flag_manager"] = FlagManager(flags if ok else [])
-    
-    # AI Assistant
     if "ai_assistant" not in st.session_state:
         st.session_state["ai_assistant"] = AIAssistant(
             st.session_state["inventory_manager"],
@@ -145,16 +130,12 @@ def initialize_session_state():
             st.session_state["flag_manager"],
             use_openai=True
         )
-    
-    # Chat history
     st.session_state.setdefault("chat_history", [
         {
             "role": "assistant",
             "content": st.session_state["ai_assistant"].get_welcome_message()
         }
     ])
-
-# ==================== UTILITY FUNCTIONS ====================
 
 def save_all_data():
     """Save all managers' data to JSON files."""
@@ -172,8 +153,6 @@ def logout():
     st.session_state["current_page"] = "dashboard"
     st.rerun()
 
-# ==================== UI COMPONENTS ====================
-
 def render_login_page():
     """Render the login and registration page."""
     
@@ -183,18 +162,16 @@ def render_login_page():
         st.markdown(
             """
             <div class='app-header'>
-                <h1>🏪 Inventory Manager</h1>
+                <h1>Inventory Manager</h1>
                 <p>Small Business Inventory Management System</p>
             </div>
             """,
             unsafe_allow_html=True,
         )
-        
-        # Test Accounts Section
         st.markdown(
             """
             <div class='test-accounts'>
-                <h4>📋 Test Accounts</h4>
+                <h4>Test Accounts</h4>
                 <div class='account-row'>
                     <strong>Owner Account:</strong><br/>
                     Email: owner@test.com | Password: owner123
@@ -209,9 +186,7 @@ def render_login_page():
         )
         
         st.markdown("---")
-        
-        # Login/Register Tabs
-        tab_login, tab_register = st.tabs(["🔐 Login", "📝 Register"])
+        tab_login, tab_register = st.tabs(["Login", "Register"])
         
         with tab_login:
             st.subheader("Login to Your Account")
@@ -230,7 +205,7 @@ def render_login_page():
                         st.success("Login successful!")
                         st.rerun()
                     else:
-                        st.error("❌ Invalid credentials. Please try again.")
+                        st.error("Invalid credentials. Please try again.")
         
         with tab_register:
             st.subheader("Create a New Account")
@@ -246,9 +221,9 @@ def render_login_page():
                     
                     if success:
                         save_all_data()
-                        st.success("✓ Account created! You can now log in.")
+                        st.success("Account created! You can now log in.")
                     else:
-                        st.error(f"❌ {message}")
+                        st.error(f"{message}")
 
 def render_sidebar():
     """Render the sidebar navigation."""
@@ -256,16 +231,12 @@ def render_sidebar():
     
     with st.sidebar:
         st.markdown("### Navigation")
-        
-        # User info
         col1, col2 = st.columns([2, 1])
         with col1:
             st.write(f"**{user.username}**")
         with col2:
-            if st.button("🚪 Logout", use_container_width=True):
+            if st.button("Logout", use_container_width=True):
                 logout()
-        
-        # Role badge
         role_class = "role-owner" if user.is_owner() else "role-employee"
         st.markdown(
             f"<div class='role-badge {role_class}'>{user.role.upper()}</div>",
@@ -273,24 +244,22 @@ def render_sidebar():
         )
         
         st.divider()
-        
-        # Navigation menu
         st.subheader("Pages")
         
         if user.is_owner():
             pages = {
-                "📊 Dashboard": "dashboard",
-                "📦 Inventory": "inventory",
-                "📈 Reports": "reports",
-                "🤖 AI Assistant": "assistant",
+                "Dashboard": "dashboard",
+                "Inventory": "inventory",
+                "Reports": "reports",
+                "AI Assistant": "assistant",
             }
         else:
             pages = {
-                "📊 Dashboard": "dashboard",
-                "📋 Catalog": "catalog",
-                "💳 Sales": "sales",
-                "🚩 Low Stock Flags": "flags",
-                "🤖 AI Assistant": "assistant",
+                "Dashboard": "dashboard",
+                "Catalog": "catalog",
+                "Sales": "sales",
+                "Low Stock Flags": "flags",
+                "AI Assistant": "assistant",
             }
         
         for label, page_key in pages.items():
@@ -300,15 +269,12 @@ def render_sidebar():
 
 def render_owner_dashboard():
     """Render owner dashboard."""
-    st.markdown("<div class='app-header'><h1>📊 Owner Dashboard</h1><p>Business Performance Overview</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-header'><h1>Owner Dashboard</h1><p>Business Performance Overview</p></div>", unsafe_allow_html=True)
     
     inventory_mgr = st.session_state["inventory_manager"]
     sales_mgr = st.session_state["sales_manager"]
     flag_mgr = st.session_state["flag_manager"]
-    
-    # Metrics
     col1, col2, col3, col4 = st.columns(4)
-    
     with col1:
         st.metric("Active Products", len(inventory_mgr.get_active_products()))
     with col2:
@@ -321,41 +287,37 @@ def render_owner_dashboard():
     st.divider()
     
     col1, col2 = st.columns(2)
-    
     with col1:
-        st.subheader("💰 Revenue Summary")
+        st.subheader("Revenue Summary")
         revenue = sales_mgr.get_total_revenue()
         avg_sale = sales_mgr.get_average_sale_value()
         
         st.metric("Total Revenue", f"${revenue:.2f}")
         st.metric("Average Sale", f"${avg_sale:.2f}")
         st.metric("Inventory Value", f"${inventory_mgr.calculate_total_value():.2f}")
-    
     with col2:
-        st.subheader("⚠️ Recent Alerts")
+        st.subheader("Recent Alerts")
         open_flags = flag_mgr.get_open_flags()[:5]
         
         if open_flags:
             for flag in open_flags:
-                with st.expander(f"🚩 {flag.product_name}", expanded=False):
+                with st.expander(f"{flag.product_name}", expanded=False):
                     st.write(f"**Flagged by:** {flag.flagged_by}")
                     st.write(f"**Note:** {flag.note}")
         else:
-            st.success("✓ No open alerts!")
+            st.success("No open alerts!")
 
 def render_owner_inventory():
     """Render owner inventory management page."""
-    st.markdown("<div class='app-header'><h1>📦 Inventory Management</h1><p>Add, Update, and Manage Products</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-header'><h1>Inventory Management</h1><p>Add, Update, and Manage Products</p></div>", unsafe_allow_html=True)
     
     inventory_mgr = st.session_state["inventory_manager"]
     inventory_service = InventoryService(inventory_mgr)
     
     col_add, col_update = st.columns(2)
-    
-    # Add Product Section
     with col_add:
         with st.container(border=True):
-            st.subheader("➕ Add New Product")
+            st.subheader("Add New Product")
             
             with st.form("add_product_form"):
                 name = st.text_input("Product Name")
@@ -372,11 +334,9 @@ def render_owner_inventory():
                         st.rerun()
                     else:
                         st.error(message)
-    
-    # Update Product Section
     with col_update:
         with st.container(border=True):
-            st.subheader("✏️ Update Product")
+            st.subheader("Update Product")
             
             active_products = inventory_mgr.get_active_products()
             if not active_products:
@@ -416,11 +376,8 @@ def render_owner_inventory():
                                 st.rerun()
                             else:
                                 st.error(message)
-    
     st.divider()
-    
-    # Products Table
-    st.subheader("📋 Active Catalog")
+    st.subheader("Active Catalog")
     active = inventory_mgr.get_active_products()
     
     if active:
@@ -431,7 +388,7 @@ def render_owner_inventory():
                 "Price": f"${p.price:.2f}",
                 "Stock": p.stock,
                 "Threshold": p.low_stock_threshold,
-                "Status": "⚠️ LOW" if p.is_low_stock() else "✓ OK"
+                "Status": "LOW" if p.is_low_stock() else "OK"
             }
             for p in active
         ]
@@ -441,12 +398,12 @@ def render_owner_inventory():
 
 def render_owner_reports():
     """Render owner reports page."""
-    st.markdown("<div class='app-header'><h1>📈 Reports</h1><p>Sales & Inventory Analytics</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-header'><h1>Reports</h1><p>Sales & Inventory Analytics</p></div>", unsafe_allow_html=True)
     
     sales_mgr = st.session_state["sales_manager"]
     flag_mgr = st.session_state["flag_manager"]
     
-    tab_sales, tab_flags = st.tabs(["💰 Sales Report", "🚩 Flag Report"])
+    tab_sales, tab_flags = st.tabs(["Sales Report", "Flag Report"])
     
     with tab_sales:
         col1, col2, col3 = st.columns(3)
@@ -503,16 +460,13 @@ def render_owner_reports():
 
 def render_employee_dashboard():
     """Render employee dashboard."""
-    st.markdown("<div class='app-header'><h1>📊 Employee Dashboard</h1><p>Your Daily Operations</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-header'><h1>Employee Dashboard</h1><p>Your Daily Operations</p></div>", unsafe_allow_html=True)
     
     user = st.session_state["current_user"]
     inventory_mgr = st.session_state["inventory_manager"]
     sales_mgr = st.session_state["sales_manager"]
     flag_mgr = st.session_state["flag_manager"]
-    
-    # Metrics
     col1, col2, col3, col4 = st.columns(4)
-    
     with col1:
         st.metric("Products Available", len(inventory_mgr.get_active_products()))
     with col2:
@@ -523,11 +477,9 @@ def render_employee_dashboard():
         st.metric("Low Stock Items", len(inventory_mgr.get_low_stock_items()))
     
     st.divider()
-    
     col1, col2 = st.columns(2)
-    
     with col1:
-        st.subheader("📦 Low Stock Inventory")
+        st.subheader("Low Stock Inventory")
         low_stock = inventory_mgr.get_low_stock_items()
         
         if low_stock:
@@ -542,10 +494,9 @@ def render_employee_dashboard():
             ]
             st.dataframe(data, use_container_width=True, hide_index=True)
         else:
-            st.success("✓ No items below threshold!")
-    
+            st.success("No items below threshold!")
     with col2:
-        st.subheader("💳 Your Recent Sales")
+        st.subheader("Your Recent Sales")
         my_sales = sales_mgr.get_sales_by_employee(user.username)
         
         if my_sales:
@@ -564,15 +515,13 @@ def render_employee_dashboard():
 
 def render_employee_catalog():
     """Render employee product catalog."""
-    st.markdown("<div class='app-header'><h1>📋 Product Catalog</h1><p>Browse Available Products</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-header'><h1>Product Catalog</h1><p>Browse Available Products</p></div>", unsafe_allow_html=True)
     
     inventory_mgr = st.session_state["inventory_manager"]
     
     col_search, col_count = st.columns([2, 1])
-    
     with col_search:
-        search = st.text_input("🔍 Search by name or category").lower().strip()
-    
+        search = st.text_input("Search by name or category").lower().strip()
     with col_count:
         filtered = inventory_mgr.get_catalog_for_employee(search)
         st.metric("Products Found", len(filtered))
@@ -584,7 +533,7 @@ def render_employee_catalog():
                 "Category": p.category,
                 "Price": f"${p.price:.2f}",
                 "Stock": p.stock,
-                "Available": "✓" if p.stock > 0 else "⚠️ Out"
+                "Available": "In Stock" if p.stock > 0 else "Out"
             }
             for p in filtered
         ]
@@ -594,7 +543,7 @@ def render_employee_catalog():
 
 def render_employee_sales():
     """Render employee sales recording page."""
-    st.markdown("<div class='app-header'><h1>💳 Record Sale</h1><p>Log Customer Purchases</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-header'><h1>Record Sale</h1><p>Log Customer Purchases</p></div>", unsafe_allow_html=True)
     
     user = st.session_state["current_user"]
     inventory_mgr = st.session_state["inventory_manager"]
@@ -606,7 +555,6 @@ def render_employee_sales():
     if not active:
         st.warning("No inventory available. Ask the owner to add products first.")
         return
-    
     with st.container(border=True):
         st.subheader("New Sale")
         
@@ -634,10 +582,8 @@ def render_employee_sales():
                     st.rerun()
                 else:
                     st.error(message)
-    
     st.divider()
-    
-    st.subheader("📊 Your Sales History")
+    st.subheader("Your Sales History")
     my_sales = sales_mgr.get_sales_by_employee(user.username)
     
     if my_sales:
@@ -657,7 +603,7 @@ def render_employee_sales():
 
 def render_employee_flags():
     """Render employee low-stock flag page."""
-    st.markdown("<div class='app-header'><h1>🚩 Low Stock Alerts</h1><p>Report Inventory Issues</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-header'><h1>Low Stock Alerts</h1><p>Report Inventory Issues</p></div>", unsafe_allow_html=True)
     
     user = st.session_state["current_user"]
     inventory_mgr = st.session_state["inventory_manager"]
@@ -665,7 +611,6 @@ def render_employee_flags():
     flag_service = FlagService(flag_mgr, inventory_mgr)
     
     col_form, col_items = st.columns([1, 2])
-    
     with col_form:
         with st.container(border=True):
             st.subheader("Submit Flag")
@@ -693,7 +638,6 @@ def render_employee_flags():
                             st.rerun()
                         else:
                             st.error(message)
-    
     with col_items:
         st.subheader("Items Below Threshold")
         
@@ -710,11 +654,9 @@ def render_employee_flags():
             ]
             st.dataframe(data, use_container_width=True, hide_index=True)
         else:
-            st.success("✓ No items below threshold!")
-    
+            st.success("No items below threshold!")
     st.divider()
-    
-    st.subheader("📋 Your Flags")
+    st.subheader("Your Flags")
     my_flags = flag_mgr.get_flags_by_employee(user.username)
     
     if my_flags:
@@ -733,14 +675,13 @@ def render_employee_flags():
 
 def render_ai_assistant():
     """Render the AI assistant page."""
-    st.markdown("<div class='app-header'><h1>🤖 AI Assistant</h1><p>Get Help with Inventory Management</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-header'><h1>AI Assistant</h1><p>Get Help with Inventory Management</p></div>", unsafe_allow_html=True)
     
     assistant = st.session_state["ai_assistant"]
     
     col_clear, col_info = st.columns([1, 3])
-    
     with col_clear:
-        if st.button("🔄 Clear Chat", use_container_width=True):
+        if st.button("Clear Chat", use_container_width=True):
             st.session_state["chat_history"] = [
                 {
                     "role": "assistant",
@@ -750,15 +691,11 @@ def render_ai_assistant():
             st.rerun()
     
     with col_info:
-        st.info("💡 Ask me anything about inventory, sales, stock levels, or operational guidance.")
-    
-    # Chat display
+        st.info("Ask me anything about inventory, sales, stock levels, or operational guidance.")
     with st.container(border=True, height=400):
         for message in st.session_state["chat_history"]:
             with st.chat_message(message["role"]):
                 st.write(message["content"])
-    
-    # Chat input
     user_input = st.chat_input("Ask your question...")
     
     if user_input:
@@ -774,8 +711,6 @@ def render_ai_assistant():
         })
         
         st.rerun()
-
-# ==================== MAIN APP ====================
 
 def main():
     """Main application logic."""
