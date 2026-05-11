@@ -1,1 +1,52 @@
-[]
+[
+  {
+    "sale_id": "s-001",
+    "product_name": "Artisan Bread",
+    "quantity": 2,
+    "unit_price": 4.5,
+    "total": 9.0,
+    "sold_by": "employee@test.com",
+    "status": "completed",
+    "created_at": "2026-05-08T09:30:00"
+  },
+  {
+    "sale_id": "s-002",
+    "product_name": "Cold Brew Bottle",
+    "quantity": 3,
+    "unit_price": 5.75,
+    "total": 17.25,
+    "sold_by": "employee@test.com",
+    "status": "completed",
+    "created_at": "2026-05-08T10:15:00"
+  },
+  {
+    "sale_id": "s-003",
+    "product_name": "Espresso Shot",
+    "quantity": 5,
+    "unit_price": 2.50,
+    "total": 12.50,
+    "sold_by": "employee@test.com",
+    "status": "completed",
+    "created_at": "2026-05-09T08:45:00"
+  },
+  {
+    "sale_id": "s-004",
+    "product_name": "Chocolate Muffin",
+    "quantity": 1,
+    "unit_price": 3.25,
+    "total": 3.25,
+    "sold_by": "employee@test.com",
+    "status": "completed",
+    "created_at": "2026-05-09T11:20:00"
+  },
+  {
+    "sale_id": "s-005",
+    "product_name": "Granola Bar",
+    "quantity": 4,
+    "unit_price": 3.75,
+    "total": 15.0,
+    "sold_by": "employee@test.com",
+    "status": "completed",
+    "created_at": "2026-05-09T14:00:00"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "flag_id": "f-001",
+    "product_name": "Chocolate Muffin",
+    "flagged_by": "employee@test.com",
+    "note": "Stock is running low, only 3 units remaining",
+    "status": "open",
+    "created_at": "2026-05-09T15:30:00"
+  },
+  {
+    "flag_id": "f-002",
+    "product_name": "Blueberry Scone",
+    "flagged_by": "employee@test.com",
+    "note": "Only 2 units left, reorder soon",
+    "status": "open",
+    "created_at": "2026-05-09T16:00:00"
+  }
+]

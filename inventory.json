@@ -6,16 +6,18 @@
     "price": 4.5,
     "stock": 12,
     "low_stock_threshold": 5,
-    "discontinued": false
+    "discontinued": false,
+    "created_at": "2026-01-01T10:00:00"
   },
   {
     "product_id": "p-1002",
     "name": "Chocolate Muffin",
     "category": "Bakery",
     "price": 3.25,
-    "stock": 4,
+    "stock": 3,
     "low_stock_threshold": 5,
-    "discontinued": false
+    "discontinued": false,
+    "created_at": "2026-01-01T10:00:00"
   },
   {
     "product_id": "p-1003",
@@ -24,6 +26,57 @@
     "price": 5.75,
     "stock": 8,
     "low_stock_threshold": 5,
-    "discontinued": false
+    "discontinued": false,
+    "created_at": "2026-01-01T10:00:00"
+  },
+  {
+    "product_id": "p-1004",
+    "name": "Espresso Shot",
+    "category": "Beverages",
+    "price": 2.50,
+    "stock": 25,
+    "low_stock_threshold": 10,
+    "discontinued": false,
+    "created_at": "2026-01-02T10:00:00"
+  },
+  {
+    "product_id": "p-1005",
+    "name": "Blueberry Scone",
+    "category": "Bakery",
+    "price": 4.0,
+    "stock": 2,
+    "low_stock_threshold": 5,
+    "discontinued": false,
+    "created_at": "2026-01-02T10:00:00"
+  },
+  {
+    "product_id": "p-1006",
+    "name": "Almond Croissant",
+    "category": "Bakery",
+    "price": 5.25,
+    "stock": 7,
+    "low_stock_threshold": 4,
+    "discontinued": false,
+    "created_at": "2026-01-03T10:00:00"
+  },
+  {
+    "product_id": "p-1007",
+    "name": "Organic Orange Juice",
+    "category": "Beverages",
+    "price": 6.50,
+    "stock": 15,
+    "low_stock_threshold": 8,
+    "discontinued": false,
+    "created_at": "2026-01-03T10:00:00"
+  },
+  {
+    "product_id": "p-1008",
+    "name": "Granola Bar",
+    "category": "Snacks",
+    "price": 3.75,
+    "stock": 30,
+    "low_stock_threshold": 15,
+    "discontinued": false,
+    "created_at": "2026-01-04T10:00:00"
   }
 ]
