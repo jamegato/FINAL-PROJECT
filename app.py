@@ -379,9 +379,9 @@ def render_owner_employee_accounts():
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("Delete Employee", use_container_width=True, type="secondary"):
-                        user_mgr.users = [u for u in user_mgr.users if u.user_id != emp_to_delete.user_id]
+                    user_mgr.users = [u for u in user_mgr.users if u.user_id != emp_to_delete.user_id]
                     save_all_data()
-                        st.success(f"Employee account '{emp_to_delete.username}' has been deleted.")
+                    st.success(f"Employee account '{emp_to_delete.username}' has been deleted.")
                     st.rerun()
             with col2:
                 st.caption("⚠️ This action cannot be undone")
