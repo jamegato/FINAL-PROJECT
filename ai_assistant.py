@@ -1,12 +1,10 @@
-"""
-AI Assistant module integrating with OpenAI API.
-Provides intelligent responses about inventory, sales, and operations.
-"""
-
 import os
 from typing import List, Optional, Tuple
 import streamlit as st
+from dotenv import load_dotenv
+from openai import OpenAI
 
+load_dotenv()
 try:
     from openai import OpenAI
     OPENAI_AVAILABLE = True
@@ -15,9 +13,13 @@ except ImportError:
 
 from models import InventoryManager, SalesManager, FlagManager
 
-
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    st.error("OpenAI API key not found. AI Assistant will use fallback responses.")
+    st.stop()
 class AIAssistant:
     """AI Assistant that provides contextual help about inventory management."""
+
 
     def __init__(
         self,
