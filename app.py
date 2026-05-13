@@ -341,7 +341,7 @@ def render_owner_employee_accounts():
 
     with tab_create:
         st.write("Create a new employee account")
-        with st.form("create_employee_form"):
+        with st.form("create_employee_form", clear_on_submit=True):
             emp_username = st.text_input("Employee Username", key="create_emp_username")
             emp_email = st.text_input("Employee Email", key="create_emp_email")
             emp_password = st.text_input("Employee Password", type="password", key="create_emp_password")
@@ -358,8 +358,6 @@ def render_owner_employee_accounts():
                     if success:
                         save_all_data()
                         st.success(f"Employee account '{emp_username}' created successfully!")
-                        for key in ["create_emp_username", "create_emp_email", "create_emp_password", "create_emp_confirm"]:
-                            st.session_state[key] = ""
                         st.rerun()
                     else:
                         st.error(f"Failed to create account: {message}")
