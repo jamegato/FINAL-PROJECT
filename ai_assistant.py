@@ -17,9 +17,9 @@ except ImportError:
 from models import InventoryManager, SalesManager, FlagManager
 
 api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    st.error("OpenAI API key not found. AI Assistant will use fallback responses.")
-    st.stop()
+#if not api_key:
+    #st.error("OpenAI API key not found. AI Assistant will use fallback responses.")
+    #st.stop()
 class AIAssistant:
     """AI Assistant that provides contextual help about inventory management."""
 
