@@ -1,14 +1,16 @@
 [
     {
         "user_id": 1,
-        "username": "james@test.com",
+        "email": "james@test.com",
+        "username": "james",
         "password": "james123",
         "role": "owner",
         "created_at": "2026-01-01T10:00:00"
     },
     {
         "user_id": 2,
-        "username": "random@test.com",
+        "email": "random@test.com",
+        "username": "random",
         "password": "random123",
         "role": "employee",
         "created_at": "2026-01-01T10:00:00"

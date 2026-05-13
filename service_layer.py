@@ -21,7 +21,7 @@ class ValidationService:
     @staticmethod
     def validate_username(username: str) -> Tuple[bool, str]:
         """
-        Validate username format.
+        Validate display username format.
         
         Returns:
             Tuple of (valid, error_message)
@@ -31,6 +31,16 @@ class ValidationService:
             return False, "Username is required."
         if len(username) < 3:
             return False, "Username must be at least 3 characters."
+        return True, ""
+
+    @staticmethod
+    def validate_email(email: str) -> Tuple[bool, str]:
+        """Validate email format."""
+        email = ValidationService.clean_text(email)
+        if not email:
+            return False, "Email is required."
+        if "@" not in email or "." not in email.split("@")[-1]:
+            return False, "Please enter a valid email address."
         return True, ""
 
     @staticmethod
@@ -57,6 +67,7 @@ class ValidationService:
 
     @staticmethod
     def validate_registration(
+        email: str,
         username: str,
         password: str,
         role: str,
@@ -68,6 +79,10 @@ class ValidationService:
         Returns:
             Tuple of (valid, error_message)
         """
+        valid, msg = ValidationService.validate_email(email)
+        if not valid:
+            return False, msg
+
         valid, msg = ValidationService.validate_username(username)
         if not valid:
             return False, msg
@@ -80,7 +95,10 @@ class ValidationService:
         if not valid:
             return False, msg
 
-        if user_manager.user_exists(username):
+        if user_manager.email_exists(email):
+            return False, "That email is already registered."
+
+        if user_manager.username_exists(username):
             return False, "That username is already taken."
 
         return True, ""
@@ -172,22 +190,23 @@ class AuthenticationService:
         self.user_manager = user_manager
         self.validation = ValidationService()
 
-    def register_user(self, username: str, password: str, role: str) -> Tuple[bool, str]:
+    def register_user(self, email: str, username: str, password: str, role: str) -> Tuple[bool, str]:
         """
         Register a new user.
         
         Returns:
             Tuple of (success, message)
         """
-        valid, msg = self.validation.validate_registration(username, password, role, self.user_manager)
+        valid, msg = self.validation.validate_registration(email, username, password, role, self.user_manager)
         if not valid:
             return False, msg
 
+        email = self.validation.clean_text(email)
         username = self.validation.clean_text(username)
         password = self.validation.clean_text(password)
         
         next_id = max((u.user_id for u in self.user_manager.users), default=0) + 1
-        user = User(user_id=next_id, username=username, password=password, role=role)
+        user = User(user_id=next_id, email=email, username=username, password=password, role=role)
         
         if self.user_manager.add_user(user):
             return True, "Registration successful. You can now log in."
@@ -195,7 +214,7 @@ class AuthenticationService:
 
     def authenticate(self, username: str, password: str) -> Tuple[bool, Optional[User]]:
         """
-        Authenticate a user.
+        Authenticate a user by email or username.
         
         Returns:
             Tuple of (success, user_object)

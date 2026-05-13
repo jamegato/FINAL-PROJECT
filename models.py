@@ -33,14 +33,26 @@ class FlagStatus(Enum):
 class User:
     """Represents a user account in the system."""
     user_id: int
-    username: str
+    email: str
     password: str
     role: str
+    username: str = ""
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+
+    def __post_init__(self) -> None:
+        self.email = self.email.strip()
+        self.username = self.username.strip()
+        if not self.username:
+            self.username = self.email.split("@")[0] if "@" in self.email else self.email
 
     def to_dict(self) -> dict:
         """Convert user to dictionary for JSON serialization."""
         return asdict(self)
+
+    @property
+    def login_name(self) -> str:
+        """Get the login email used for authentication."""
+        return self.email
 
     def can_access_page(self, page: str) -> bool:
         """Determine if user has access to a specific page."""
@@ -318,7 +330,7 @@ class UserManager:
 
     def add_user(self, user: User) -> bool:
         """Add a new user to the system."""
-        if self.user_exists(user.username):
+        if self.email_exists(user.email) or self.username_exists(user.username):
             return False
         self.users.append(user)
         return True
@@ -331,13 +343,33 @@ class UserManager:
         """Retrieve a user by username (case-insensitive)."""
         return next((u for u in self.users if u.username.lower() == username.lower()), None)
 
+    def get_user_by_email(self, email: str) -> Optional[User]:
+        """Retrieve a user by email (case-insensitive)."""
+        return next((u for u in self.users if u.email.lower() == email.lower()), None)
+
+    def get_user_by_identifier(self, identifier: str) -> Optional[User]:
+        """Retrieve a user by either email or username."""
+        identifier = identifier.strip()
+        user = self.get_user_by_email(identifier)
+        if user:
+            return user
+        return self.get_user_by_username(identifier)
+
     def user_exists(self, username: str) -> bool:
-        """Check if a user with given username exists."""
-        return any(u.username.lower() == username.lower() for u in self.users)
+        """Check if a user with given identifier exists."""
+        return self.get_user_by_identifier(username) is not None
+
+    def email_exists(self, email: str) -> bool:
+        """Check if a user with given email exists."""
+        return self.get_user_by_email(email) is not None
+
+    def username_exists(self, username: str) -> bool:
+        """Check if a user with given display username exists."""
+        return self.get_user_by_username(username) is not None
 
     def authenticate(self, username: str, password: str) -> Optional[User]:
         """Authenticate a user and return the user object if valid."""
-        user = self.get_user_by_username(username)
+        user = self.get_user_by_identifier(username)
         if user and user.password == password:
             return user
         return None

@@ -198,7 +198,7 @@ def render_login_page():
             st.subheader("Login to Your Account")
             
             with st.form("login_form"):
-                username = st.text_input("Username/Email", key="login_username")
+                username = st.text_input("Email or Username", key="login_username")
                 password = st.text_input("Password", type="password", key="login_password")
                 
                 if st.form_submit_button("Sign In", use_container_width=True, type="primary"):
@@ -217,13 +217,14 @@ def render_login_page():
             st.subheader("Create a New Account")
             
             with st.form("register_form"):
-                reg_username = st.text_input("Choose Username", key="reg_username")
+                reg_email = st.text_input("Email", key="reg_email")
+                reg_username = st.text_input("Username", key="reg_username")
                 reg_password = st.text_input("Choose Password", type="password", key="reg_password")
                 reg_role = st.selectbox("Select Your Role", ["employee", "owner"], key="reg_role")
                 
                 if st.form_submit_button("Create Account", use_container_width=True):
                     auth_service = AuthenticationService(st.session_state["user_manager"])
-                    success, message = auth_service.register_user(reg_username, reg_password, reg_role)
+                    success, message = auth_service.register_user(reg_email, reg_username, reg_password, reg_role)
                     
                     if success:
                         save_all_data()
@@ -240,6 +241,7 @@ def render_sidebar():
         col1, col2 = st.columns([2, 1])
         with col1:
             st.write(f"**{user.username}**")
+            st.caption(user.email)
         with col2:
             if st.button("Logout", use_container_width=True):
                 logout()
@@ -330,7 +332,8 @@ def render_owner_employee_accounts():
             for emp in employees:
                 col1, col2 = st.columns([3, 1])
                 with col1:
-                    st.write(f"📧 {emp.username}")
+                    st.write(f"👤 {emp.username}")
+                    st.caption(emp.email)
                 with col2:
                     st.caption(f"Role: {emp.role.upper()}")
         else:
@@ -339,21 +342,24 @@ def render_owner_employee_accounts():
     with tab_create:
         st.write("Create a new employee account")
         with st.form("create_employee_form"):
-            emp_username = st.text_input("Employee Username/Email", key="create_emp_username")
+            emp_username = st.text_input("Employee Username", key="create_emp_username")
+            emp_email = st.text_input("Employee Email", key="create_emp_email")
             emp_password = st.text_input("Employee Password", type="password", key="create_emp_password")
             confirm_password = st.text_input("Confirm Password", type="password", key="create_emp_confirm")
 
             if st.form_submit_button("Create Employee Account", use_container_width=True, type="primary"):
-                if not emp_username or not emp_password:
-                    st.error("Username and password are required.")
+                if not emp_username or not emp_email or not emp_password:
+                    st.error("Username, email, and password are required.")
                 elif emp_password != confirm_password:
                     st.error("Passwords do not match.")
                 else:
                     auth_service = AuthenticationService(user_mgr)
-                    success, message = auth_service.register_user(emp_username, emp_password, "employee")
+                    success, message = auth_service.register_user(emp_email, emp_username, emp_password, "employee")
                     if success:
                         save_all_data()
                         st.success(f"Employee account '{emp_username}' created successfully!")
+                        for key in ["create_emp_username", "create_emp_email", "create_emp_password", "create_emp_confirm"]:
+                            st.session_state[key] = ""
                         st.rerun()
                     else:
                         st.error(f"Failed to create account: {message}")
@@ -366,16 +372,16 @@ def render_owner_employee_accounts():
             emp_to_delete = st.selectbox(
                 "Select employee to delete",
                 options=employees,
-                format_func=lambda x: x.username,
+                format_func=lambda x: f"{x.username} ({x.email})",
                 key="delete_emp_select"
             )
 
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("Delete Employee", use_container_width=True, type="secondary"):
-                    user_mgr.users = [u for u in user_mgr.users if u.username != emp_to_delete.username]
+                        user_mgr.users = [u for u in user_mgr.users if u.user_id != emp_to_delete.user_id]
                     save_all_data()
-                    st.success(f"Employee account '{emp_to_delete.username}' has been deleted.")
+                        st.success(f"Employee account '{emp_to_delete.username}' has been deleted.")
                     st.rerun()
             with col2:
                 st.caption("⚠️ This action cannot be undone")

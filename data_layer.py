@@ -137,18 +137,32 @@ class DataLayer:
         
         try:
             users = [
-                User(
-                    user_id=item.get("user_id", 0),
-                    username=item.get("username", ""),
-                    password=item.get("password", ""),
-                    role=item.get("role", "employee"),
-                    created_at=item.get("created_at", ""),
-                )
+                self._build_user(item)
                 for item in data
             ]
             return True, users, ""
         except Exception as e:
             return False, [], f"Error parsing users: {str(e)}"
+
+    def _build_user(self, item: dict) -> User:
+        """Build a User object from current or legacy user JSON."""
+        email = item.get("email") or item.get("username", "")
+        username = item.get("username", "")
+
+        if not username:
+            username = email.split("@")[0] if "@" in email else email
+
+        if email and username == email and "@" in email:
+            username = email.split("@")[0]
+
+        return User(
+            user_id=item.get("user_id", 0),
+            email=email,
+            password=item.get("password", ""),
+            role=item.get("role", "employee"),
+            username=username,
+            created_at=item.get("created_at", ""),
+        )
 
     def save_users(self, users: List[User]) -> Tuple[bool, str]:
         """Save users to file."""
