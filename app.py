@@ -312,6 +312,73 @@ def render_owner_dashboard():
                     st.write(f"**Note:** {flag.note}")
         else:
             st.success("No open alerts!")
+    
+    st.divider()
+    
+    st.subheader("Employee Account Management")
+    
+    user_mgr = st.session_state["user_manager"]
+    
+    tab_view, tab_create, tab_delete = st.tabs(["View Employees", "Create Employee", "Delete Employee"])
+    
+    with tab_view:
+        employees = [user for user in user_mgr.users if user.role == "employee"]
+        if employees:
+            st.write(f"**Total Employees:** {len(employees)}")
+            for emp in employees:
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.write(f" {emp.username}")
+                with col2:
+                    st.caption(f"Role: {emp.role.upper()}")
+        else:
+            st.info("No employees created yet.")
+    
+    with tab_create:
+        st.write("Create a new employee account")
+        with st.form("create_employee_form"):
+            emp_username = st.text_input("Employee Username/Email", key="create_emp_username")
+            emp_password = st.text_input("Employee Password", type="password", key="create_emp_password")
+            confirm_password = st.text_input("Confirm Password", type="password", key="create_emp_confirm")
+            
+            if st.form_submit_button("Create Employee Account", use_container_width=True, type="primary"):
+                if not emp_username or not emp_password:
+                    st.error("Username and password are required.")
+                elif emp_password != confirm_password:
+                    st.error("Passwords do not match.")
+                else:
+                    auth_service = AuthenticationService(user_mgr)
+                    success, message = auth_service.register_user(emp_username, emp_password, "employee")
+                    if success:
+                        save_all_data()
+                        st.success(f"Employee account '{emp_username}' created successfully!")
+                        st.rerun()
+                    else:
+                        st.error(f"Failed to create account: {message}")
+    
+    with tab_delete:
+        st.write("Delete an employee account")
+        employees = [user for user in user_mgr.users if user.role == "employee"]
+        
+        if employees:
+            emp_to_delete = st.selectbox(
+                "Select employee to delete",
+                options=employees,
+                format_func=lambda x: x.username,
+                key="delete_emp_select"
+            )
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Delete Employee", use_container_width=True, type="secondary"):
+                    user_mgr.users = [u for u in user_mgr.users if u.username != emp_to_delete.username]
+                    save_all_data()
+                    st.success(f"Employee account '{emp_to_delete.username}' has been deleted.")
+                    st.rerun()
+            with col2:
+                st.caption(" This action cannot be undone")
+        else:
+            st.info("No employees to delete.")
 
 def render_owner_inventory():
     """Render owner inventory management page."""
