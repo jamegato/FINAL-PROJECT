@@ -280,105 +280,107 @@ def render_owner_dashboard():
     inventory_mgr = st.session_state["inventory_manager"]
     sales_mgr = st.session_state["sales_manager"]
     flag_mgr = st.session_state["flag_manager"]
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Active Products", len(inventory_mgr.get_active_products()))
-    with col2:
-        st.metric("Low Stock Items", len(inventory_mgr.get_low_stock_items(strict=True)))
-    with col3:
-        st.metric("Total Sales", sales_mgr.get_sales_count())
-    with col4:
-        st.metric("Open Alerts", flag_mgr.get_open_flag_count())
-    
-    st.divider()
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Revenue Summary")
-        revenue = sales_mgr.get_total_revenue()
-        avg_sale = sales_mgr.get_average_sale_value()
-        
-        st.metric("Total Revenue", f"${revenue:.2f}")
-        st.metric("Average Sale", f"${avg_sale:.2f}")
-        st.metric("Inventory Value", f"${inventory_mgr.calculate_total_value():.2f}")
-    with col2:
-        st.subheader("Recent Alerts")
-        open_flags = flag_mgr.get_open_flags()[:5]
-        
-        if open_flags:
-            for flag in open_flags:
-                with st.expander(f"{flag.product_name}", expanded=False):
-                    st.write(f"**Flagged by:** {flag.flagged_by}")
-                    st.write(f"**Note:** {flag.note}")
-        else:
-            st.success("No open alerts!")
-    
-    st.divider()
-    
-    st.subheader("Employee Account Management")
-    
     user_mgr = st.session_state["user_manager"]
-    
-    tab_view, tab_create, tab_delete = st.tabs(["View Employees", "Create Employee", "Delete Employee"])
-    
-    with tab_view:
-        employees = [user for user in user_mgr.users if user.role == "employee"]
-        if employees:
-            st.write(f"**Total Employees:** {len(employees)}")
-            for emp in employees:
-                col1, col2 = st.columns([3, 1])
-                with col1:
-                    st.write(f" {emp.username}")
-                with col2:
-                    st.caption(f"Role: {emp.role.upper()}")
-        else:
-            st.info("No employees created yet.")
-    
-    with tab_create:
-        st.write("Create a new employee account")
-        with st.form("create_employee_form"):
-            emp_username = st.text_input("Employee Username/Email", key="create_emp_username")
-            emp_password = st.text_input("Employee Password", type="password", key="create_emp_password")
-            confirm_password = st.text_input("Confirm Password", type="password", key="create_emp_confirm")
-            
-            if st.form_submit_button("Create Employee Account", use_container_width=True, type="primary"):
-                if not emp_username or not emp_password:
-                    st.error("Username and password are required.")
-                elif emp_password != confirm_password:
-                    st.error("Passwords do not match.")
-                else:
-                    auth_service = AuthenticationService(user_mgr)
-                    success, message = auth_service.register_user(emp_username, emp_password, "employee")
-                    if success:
-                        save_all_data()
-                        st.success(f"Employee account '{emp_username}' created successfully!")
-                        st.rerun()
+
+    overview_tab, employees_tab = st.tabs(["Overview", "Employee Accounts"])
+
+    with overview_tab:
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Active Products", len(inventory_mgr.get_active_products()))
+        with col2:
+            st.metric("Low Stock Items", len(inventory_mgr.get_low_stock_items(strict=True)))
+        with col3:
+            st.metric("Total Sales", sales_mgr.get_sales_count())
+        with col4:
+            st.metric("Open Alerts", flag_mgr.get_open_flag_count())
+
+        st.divider()
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Revenue Summary")
+            revenue = sales_mgr.get_total_revenue()
+            avg_sale = sales_mgr.get_average_sale_value()
+
+            st.metric("Total Revenue", f"${revenue:.2f}")
+            st.metric("Average Sale", f"${avg_sale:.2f}")
+            st.metric("Inventory Value", f"${inventory_mgr.calculate_total_value():.2f}")
+        with col2:
+            st.subheader("Recent Alerts")
+            open_flags = flag_mgr.get_open_flags()[:5]
+
+            if open_flags:
+                for flag in open_flags:
+                    with st.expander(f"{flag.product_name}", expanded=False):
+                        st.write(f"**Flagged by:** {flag.flagged_by}")
+                        st.write(f"**Note:** {flag.note}")
+            else:
+                st.success("No open alerts!")
+
+    with employees_tab:
+        st.subheader("Employee Account Management")
+
+        tab_view, tab_create, tab_delete = st.tabs(["View Employees", "Create Employee", "Delete Employee"])
+
+        with tab_view:
+            employees = [user for user in user_mgr.users if user.role == "employee"]
+            if employees:
+                st.write(f"**Total Employees:** {len(employees)}")
+                for emp in employees:
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.write(f"📧 {emp.username}")
+                    with col2:
+                        st.caption(f"Role: {emp.role.upper()}")
+            else:
+                st.info("No employees created yet.")
+
+        with tab_create:
+            st.write("Create a new employee account")
+            with st.form("create_employee_form"):
+                emp_username = st.text_input("Employee Username/Email", key="create_emp_username")
+                emp_password = st.text_input("Employee Password", type="password", key="create_emp_password")
+                confirm_password = st.text_input("Confirm Password", type="password", key="create_emp_confirm")
+
+                if st.form_submit_button("Create Employee Account", use_container_width=True, type="primary"):
+                    if not emp_username or not emp_password:
+                        st.error("Username and password are required.")
+                    elif emp_password != confirm_password:
+                        st.error("Passwords do not match.")
                     else:
-                        st.error(f"Failed to create account: {message}")
-    
-    with tab_delete:
-        st.write("Delete an employee account")
-        employees = [user for user in user_mgr.users if user.role == "employee"]
-        
-        if employees:
-            emp_to_delete = st.selectbox(
-                "Select employee to delete",
-                options=employees,
-                format_func=lambda x: x.username,
-                key="delete_emp_select"
-            )
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("Delete Employee", use_container_width=True, type="secondary"):
-                    user_mgr.users = [u for u in user_mgr.users if u.username != emp_to_delete.username]
-                    save_all_data()
-                    st.success(f"Employee account '{emp_to_delete.username}' has been deleted.")
-                    st.rerun()
-            with col2:
-                st.caption(" This action cannot be undone")
-        else:
-            st.info("No employees to delete.")
+                        auth_service = AuthenticationService(user_mgr)
+                        success, message = auth_service.register_user(emp_username, emp_password, "employee")
+                        if success:
+                            save_all_data()
+                            st.success(f"Employee account '{emp_username}' created successfully!")
+                            st.rerun()
+                        else:
+                            st.error(f"Failed to create account: {message}")
+
+        with tab_delete:
+            st.write("Delete an employee account")
+            employees = [user for user in user_mgr.users if user.role == "employee"]
+
+            if employees:
+                emp_to_delete = st.selectbox(
+                    "Select employee to delete",
+                    options=employees,
+                    format_func=lambda x: x.username,
+                    key="delete_emp_select"
+                )
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("Delete Employee", use_container_width=True, type="secondary"):
+                        user_mgr.users = [u for u in user_mgr.users if u.username != emp_to_delete.username]
+                        save_all_data()
+                        st.success(f"Employee account '{emp_to_delete.username}' has been deleted.")
+                        st.rerun()
+                with col2:
+                    st.caption("⚠️ This action cannot be undone")
+            else:
+                st.info("No employees to delete.")
 
 def render_owner_inventory():
     """Render owner inventory management page."""
