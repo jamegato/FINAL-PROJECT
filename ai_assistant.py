@@ -1,10 +1,13 @@
 import os
 from typing import List, Optional, Tuple
+from pathlib import Path
 import streamlit as st
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()
+# Load environment variables from .env file
+env_path = Path(__file__).parent / ".env"
+load_dotenv(env_path)
 try:
     from openai import OpenAI
     OPENAI_AVAILABLE = True

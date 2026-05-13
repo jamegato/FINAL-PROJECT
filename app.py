@@ -1,4 +1,10 @@
 
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+env_path = Path(__file__).parent / ".env"
+load_dotenv(env_path)
 
 import streamlit as st
 from typing import Optional
